@@ -7,4 +7,4 @@ include: "*.view"
 include: "*.dashboard"
 
 
-explore: cost_and_usage_raw {}
+explore: cost_and_usage {}
