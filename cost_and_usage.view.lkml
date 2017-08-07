@@ -205,15 +205,20 @@ view: cost_and_usage {
   dimension_group: usage_end {
     view_label: "Line Items (Individual Charges)"
     type: time
-    timeframes: [time,time_of_day,hour,date,week,day_of_week,month,month_name,year]
+    timeframes: [raw, time,time_of_day,hour,date,week,day_of_week,month,month_name,year]
     sql: from_iso8601_timestamp(${TABLE}.lineitem_usageenddate) ;;
   }
 
   dimension_group: usage_start {
     view_label: "Line Items (Individual Charges)"
     type: time
-    timeframes: [time,time_of_day,hour,date,week,day_of_week,month,month_name,year]
+    timeframes: [raw, time,time_of_day,hour,date,week,day_of_week,month,month_name,year]
     sql: from_iso8601_timestamp(${TABLE}.lineitem_usagestartdate);;
+  }
+
+  dimension: useage_hours {
+    view_label: "Line Items (Individual Charges)"
+    sql: date_diff('hour', ${usage_start_raw}, ${usage_end_raw}) ;;
   }
 
   dimension: lineitem_usagetype {
@@ -1322,11 +1327,9 @@ view: cost_and_usage {
     sql: ${reservation_unitsperreservation} ;;
   }
 
-
-
-
-
-
-
+  measure: total_usage_hours {
+    type: sum
+    sql: ${useage_hours} ;;
+  }
 
 }
