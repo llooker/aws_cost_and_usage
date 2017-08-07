@@ -862,10 +862,22 @@ view: cost_and_usage {
     sql: ${TABLE}.product_usagefamily ;;
   }
 
-  dimension: outbound_activity {
+  dimension: data_transfer {
     view_label: "Line Items (Individual Charges)"
     type: yesno
-    sql: REGEXP_LIKE(${usage_family}, 'Outbound') OR REGEXP_LIKE(${transfer_type}, 'Outbound')  ;;
+    sql: REGEXP_LIKE(${usage_type}, 'DataTransfer')   ;;
+  }
+
+  dimension: data_transfer_outbound {
+    view_label: "Line Items (Individual Charges)"
+    type: yesno
+    sql: REGEXP_LIKE(${usage_type}, 'DataTransfer-Out')   ;;
+  }
+
+  dimension: data_transfer_inbound {
+    view_label: "Line Items (Individual Charges)"
+    type: yesno
+    sql: REGEXP_LIKE(${usage_type}, 'DataTransfer-In')   ;;
   }
 
   dimension: usage_type {
@@ -1002,6 +1014,18 @@ view: cost_and_usage {
     sql: ${TABLE}.resourcetags_usercostcategory ;;
   }
 
+  dimension: customer_segment {
+    view_label: "Custom Resource Tagging"
+    type: string
+    sql: CASE
+          WHEN ${user_cost_category} = '744.00000000' THEN 'SMB'
+          WHEN ${user_cost_category} = '' THEN 'Mid-Market'
+          WHEN ${user_cost_category} = 'internal' THEN 'Enterprise'
+          ELSE 'Enterprise'
+          END
+          ;;
+  }
+
   ### END EMNABLE FOR CUSTOM TAGS ###
 
 
@@ -1039,14 +1063,50 @@ view: cost_and_usage {
     value_format_name: usd_0
   }
 
-  measure: total_outbound_transfer_cost {
+  measure: total_data_transfer_cost {
     view_label: "Line Items (Individual Charges)"
-    description: "Total outbound charges for data transfers"
+    description: "Total charges for data transfers"
     type: sum
     sql: ${lineitem_blendedcost} ;;
     value_format_name: usd_0
     filters: {
-      field: outbound_activity
+      field: data_transfer
+      value: "Yes"
+    }
+  }
+
+  measure: total_data_transfer_cost_unblended {
+    view_label: "Line Items (Individual Charges)"
+    description: "Total charges for data transfers"
+    type: sum
+    sql: ${lineitem_unblendedcost} ;;
+    value_format_name: usd_0
+    filters: {
+      field: data_transfer
+      value: "Yes"
+    }
+  }
+
+  measure: total_outbound_data_transfer_cost {
+    view_label: "Line Items (Individual Charges)"
+    description: "Total charges for data transfers"
+    type: sum
+    sql: ${lineitem_blendedcost} ;;
+    value_format_name: usd_0
+    filters: {
+      field: data_transfer_outbound
+      value: "Yes"
+    }
+  }
+
+  measure: total_inbound_data_transfer_cost {
+    view_label: "Line Items (Individual Charges)"
+    description: "Total charges for data transfers"
+    type: sum
+    sql: ${lineitem_blendedcost} ;;
+    value_format_name: usd_0
+    filters: {
+      field: data_transfer_inbound
       value: "Yes"
     }
   }
@@ -1055,7 +1115,7 @@ view: cost_and_usage {
     view_label: "Reserved Units"
     description: "How much all aggregated line items are charged to a consolidated billing account in an organization"
     type: sum
-    sql: ${lineitem_blendedcost} ;;
+    sql: ${lineitem_blendedcost};;
     value_format_name: usd_0
     filters: {
       field: ri_line_item
@@ -1074,6 +1134,50 @@ view: cost_and_usage {
       value: "Non RI Line Item"
     }
   }
+
+  measure: total_non_reserved_unblended_cost {
+    view_label: "Reserved Units"
+    description: "How much all aggregated line items are charged to a consolidated billing account in an organization"
+    type: sum
+    sql: ${lineitem_unblendedcost} ;;
+    value_format_name: usd_0
+    filters: {
+      field: ri_line_item
+      value: "Non RI Line Item"
+    }
+  }
+
+  measure: percent_spend_on_non_ris{
+    view_label: "Reserved Units"
+    type: number
+    sql: 1.0 * ${total_non_reserved_blended_cost} / NULLIF(${total_blended_cost},0) ;;
+    value_format_name: percent_2
+  }
+
+  measure: percent_spend_on_ris{
+    view_label: "Reserved Units"
+    label: "Blended RI Coverage"
+    type: number
+    sql: 1.0 * ${total_reserved_blended_cost} / NULLIF(${total_blended_cost},0) ;;
+    value_format_name: percent_2
+  }
+
+  measure: unblended_percent_spend_on_ris{
+    view_label: "Reserved Units"
+    label: "Unblended RI Coverage"
+    type: number
+    sql: 1.0 * ${total_non_reserved_unblended_cost} / NULLIF(${total_unblended_cost},0) ;;
+    value_format_name: percent_2
+  }
+
+  measure: percent_spend_data_transfers_unblended {
+    view_label: "Reserved Units"
+    label: "Unblended Data Transfer Cost Percent"
+    type: number
+    sql: 1.0 * ${total_data_transfer_cost_unblended} / NULLIF(${total_unblended_cost},0) ;;
+    value_format_name: percent_2
+  }
+
   measure: count_usage_months {
     hidden: yes
     type: count_distinct
@@ -1304,7 +1408,7 @@ view: cost_and_usage {
     view_label: "Reserved Units"
     description: "The total number of hours across all reserved instances in the subscription."
     type: number
-    sql: COALESCE(SUM(cost_and_usage_raw.reservation_numberofreservations),0) * COALESCE(SUM(cost_and_usage_raw.reservation_normalizedunitsperreservation),0 ) ;;
+    sql: (COALESCE(SUM(cost_and_usage_raw.reservation_numberofreservations),0) * COALESCE(SUM(cost_and_usage_raw.reservation_normalizedunitsperreservation),0 ) );;
   }
 
   measure: total_normalized_reserved_units {
