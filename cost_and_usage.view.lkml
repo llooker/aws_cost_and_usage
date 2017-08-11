@@ -22,6 +22,7 @@ view: cost_and_usage {
     sql: from_iso8601_timestamp(${TABLE}.bill_billingperiodstartdate) ;;
   }
 
+
   dimension: billtype {
     label: "Type"
     view_label: "Billing Info"
@@ -216,10 +217,17 @@ view: cost_and_usage {
     sql: from_iso8601_timestamp(${TABLE}.lineitem_usagestartdate);;
   }
 
-  dimension: useage_hours {
+  dimension: usage_hours {
     view_label: "Line Items (Individual Charges)"
     sql: date_diff('hour', ${usage_start_raw}, ${usage_end_raw}) ;;
   }
+
+  measure: total_usage_hours {
+    view_label: "Billing Info"
+    type: sum
+    sql: ${usage_hours} ;;
+  }
+
 
   dimension: lineitem_usagetype {
     label: "Usage Type"
@@ -417,6 +425,7 @@ view: cost_and_usage {
 
   dimension: from_location_viz {
     view_label: "Product Info"
+    description: "Should ONLY be used for visualization purposes"
     type: location
     sql_latitude: ${from_location_lat} ;;
     sql_longitude: ${from_location_long} ;;
@@ -424,6 +433,7 @@ view: cost_and_usage {
 
   dimension: to_location_viz {
     view_label: "Product Info"
+    description: "Should ONLY be used for visualization purposes"
     type: location
     sql_latitude: ${to_location_lat} ;;
     sql_longitude: ${to_location_long} ;;
@@ -431,7 +441,7 @@ view: cost_and_usage {
 
 
   dimension: from_location_lat {
-#     hidden: yes
+    hidden: yes
     type: string
     sql: CASE
         WHEN ${TABLE}.product_fromlocation = 'Asia Pacific (Mumbai)' THEN '19.075984'
@@ -458,7 +468,7 @@ view: cost_and_usage {
   }
 
   dimension: from_location_long {
-#     hidden: yes
+    hidden: yes
     type: string
     sql: CASE
         WHEN ${TABLE}.product_fromlocation = 'Asia Pacific (Mumbai)' THEN '72.877656'
@@ -486,7 +496,7 @@ view: cost_and_usage {
 
 
   dimension: to_location_lat {
-#     hidden: yes
+    hidden: yes
     type: string
     sql: CASE
     WHEN ${TABLE}.product_tolocation = 'Asia Pacific (Mumbai)' OR ${TABLE}.product_tolocationtype = 'Asia Pacific (Mumbai)' THEN '19.075984'
@@ -514,7 +524,7 @@ view: cost_and_usage {
 
   dimension: to_location_long {
     description: "Should ONLY be used for visualization purposes"
-#     hidden: yes
+    hidden: yes
     type: string
     sql: CASE
     WHEN ${TABLE}.product_tolocation = 'Asia Pacific (Mumbai)' OR ${TABLE}.product_tolocationtype = 'Asia Pacific (Mumbai)' THEN '72.877656'
@@ -988,21 +998,14 @@ view: cost_and_usage {
     sql: ${TABLE}.reservation_totalreservednormalizedunits ;;
   }
 
-### SHOULD WORK, NO VALUES COMING THROUGH IN THE EXPORT
   dimension: reservation_totalreservedunits {
+    view_label: "Reserved Units"
     description: "The total number of total number of hours across all reserved instances in the subscription."
     type: number
     hidden: yes
     sql: ${TABLE}.reservation_totalreservedunits ;;
   }
 
-### FIX SO WE'RE NOT AGGREGATING OVER MEASURES
-#   dimension: reservation_totalreservedunits {
-#     description: "The total number of total number of hours across all reserved instances in the subscription."
-#     type: number
-#     hidden: yes
-#     sql:(1.0 * ${reservation_numberofreservations}) * (1.0 * ${reservation_unitsperreservation}) ;;
-#   }
 
 
   ### ENABLE FOR CUSTOM TAGS ###
@@ -1184,7 +1187,7 @@ view: cost_and_usage {
   }
 
   measure: count_usage_months {
-    hidden: yes
+    # hidden: yes
     type: count_distinct
     sql: ${usage_start_month} ;;
   }
@@ -1397,16 +1400,6 @@ view: cost_and_usage {
     sql: ${reservation_numberofreservations} ;;
   }
 
-
-### SHOULD WORK, NO VALUES COMING THROUGH IN THE EXPORT
-#   measure: total_reserved_units_usage {
-#     label: "Total Reserved Unit Usage (Hours Used)"
-#     view_label: "Reserved Units"
-#     description: "The total number of hours across all reserved instances in the subscription."
-#     type: sum
-#     sql: ${reservation_totalreservedunits} ;;
-#   }
-
 ### UNTIL DISCREPENCY IS RESOLVED, USING A MANUAL CALCULATION
   measure: total_reserved_units_usage {
     label: "Total Reserved Unit Usage (Hours Used)"
@@ -1431,9 +1424,5 @@ view: cost_and_usage {
     sql: ${reservation_unitsperreservation} ;;
   }
 
-  measure: total_usage_hours {
-    type: sum
-    sql: ${useage_hours} ;;
-  }
 
 }
