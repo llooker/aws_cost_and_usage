@@ -22,6 +22,7 @@ view: cost_and_usage {
     sql: from_iso8601_timestamp(${TABLE}.bill_billingperiodstartdate) ;;
   }
 
+
   dimension: billtype {
     label: "Type"
     view_label: "Billing Info"
@@ -216,10 +217,17 @@ view: cost_and_usage {
     sql: from_iso8601_timestamp(${TABLE}.lineitem_usagestartdate);;
   }
 
-  dimension: useage_hours {
+  dimension: usage_hours {
     view_label: "Line Items (Individual Charges)"
     sql: date_diff('hour', ${usage_start_raw}, ${usage_end_raw}) ;;
   }
+
+  measure: total_usage_hours {
+    view_label: "Billing Info"
+    type: sum
+    sql: ${usage_hours} ;;
+  }
+
 
   dimension: lineitem_usagetype {
     label: "Usage Type"
@@ -417,6 +425,7 @@ view: cost_and_usage {
 
   dimension: from_location_viz {
     view_label: "Product Info"
+    description: "Should ONLY be used for visualization purposes"
     type: location
     sql_latitude: ${from_location_lat} ;;
     sql_longitude: ${from_location_long} ;;
@@ -424,6 +433,7 @@ view: cost_and_usage {
 
   dimension: to_location_viz {
     view_label: "Product Info"
+    description: "Should ONLY be used for visualization purposes"
     type: location
     sql_latitude: ${to_location_lat} ;;
     sql_longitude: ${to_location_long} ;;
@@ -431,7 +441,7 @@ view: cost_and_usage {
 
 
   dimension: from_location_lat {
-#     hidden: yes
+    hidden: yes
     type: string
     sql: CASE
         WHEN ${TABLE}.product_fromlocation = 'Asia Pacific (Mumbai)' THEN '19.075984'
@@ -458,7 +468,7 @@ view: cost_and_usage {
   }
 
   dimension: from_location_long {
-#     hidden: yes
+    hidden: yes
     type: string
     sql: CASE
         WHEN ${TABLE}.product_fromlocation = 'Asia Pacific (Mumbai)' THEN '72.877656'
@@ -486,7 +496,7 @@ view: cost_and_usage {
 
 
   dimension: to_location_lat {
-#     hidden: yes
+    hidden: yes
     type: string
     sql: CASE
     WHEN ${TABLE}.product_tolocation = 'Asia Pacific (Mumbai)' OR ${TABLE}.product_tolocationtype = 'Asia Pacific (Mumbai)' THEN '19.075984'
@@ -514,7 +524,7 @@ view: cost_and_usage {
 
   dimension: to_location_long {
     description: "Should ONLY be used for visualization purposes"
-#     hidden: yes
+    hidden: yes
     type: string
     sql: CASE
     WHEN ${TABLE}.product_tolocation = 'Asia Pacific (Mumbai)' OR ${TABLE}.product_tolocationtype = 'Asia Pacific (Mumbai)' THEN '72.877656'
@@ -867,10 +877,22 @@ view: cost_and_usage {
     sql: ${TABLE}.product_usagefamily ;;
   }
 
-  dimension: outbound_activity {
+  dimension: data_transfer {
     view_label: "Line Items (Individual Charges)"
     type: yesno
-    sql: REGEXP_LIKE(${usage_family}, 'Outbound') OR REGEXP_LIKE(${transfer_type}, 'Outbound')  ;;
+    sql: REGEXP_LIKE(${usage_type}, 'DataTransfer')   ;;
+  }
+
+  dimension: data_transfer_outbound {
+    view_label: "Line Items (Individual Charges)"
+    type: yesno
+    sql: REGEXP_LIKE(${usage_type}, 'DataTransfer-Out')   ;;
+  }
+
+  dimension: data_transfer_inbound {
+    view_label: "Line Items (Individual Charges)"
+    type: yesno
+    sql: REGEXP_LIKE(${usage_type}, 'DataTransfer-In')   ;;
   }
 
   dimension: usage_type {
@@ -976,21 +998,14 @@ view: cost_and_usage {
     sql: ${TABLE}.reservation_totalreservednormalizedunits ;;
   }
 
-### SHOULD WORK, NO VALUES COMING THROUGH IN THE EXPORT
   dimension: reservation_totalreservedunits {
+    view_label: "Reserved Units"
     description: "The total number of total number of hours across all reserved instances in the subscription."
     type: number
     hidden: yes
     sql: ${TABLE}.reservation_totalreservedunits ;;
   }
 
-### FIX SO WE'RE NOT AGGREGATING OVER MEASURES
-#   dimension: reservation_totalreservedunits {
-#     description: "The total number of total number of hours across all reserved instances in the subscription."
-#     type: number
-#     hidden: yes
-#     sql:(1.0 * ${reservation_numberofreservations}) * (1.0 * ${reservation_unitsperreservation}) ;;
-#   }
 
 
   ### ENABLE FOR CUSTOM TAGS ###
@@ -1005,6 +1020,18 @@ view: cost_and_usage {
     view_label: "Custom Resource Tagging"
     type: string
     sql: ${TABLE}.resourcetags_usercostcategory ;;
+  }
+
+  dimension: customer_segment {
+    view_label: "Custom Resource Tagging"
+    type: string
+    sql: CASE
+          WHEN ${user_cost_category} = '744.00000000' THEN 'SMB'
+          WHEN ${user_cost_category} = '' THEN 'Mid-Market'
+          WHEN ${user_cost_category} = 'internal' THEN 'Enterprise'
+          ELSE 'Enterprise'
+          END
+          ;;
   }
 
   ### END EMNABLE FOR CUSTOM TAGS ###
@@ -1044,14 +1071,50 @@ view: cost_and_usage {
     value_format_name: usd_0
   }
 
-  measure: total_outbound_transfer_cost {
+  measure: total_data_transfer_cost {
     view_label: "Line Items (Individual Charges)"
-    description: "Total outbound charges for data transfers"
+    description: "Total charges for data transfers"
     type: sum
     sql: ${lineitem_blendedcost} ;;
     value_format_name: usd_0
     filters: {
-      field: outbound_activity
+      field: data_transfer
+      value: "Yes"
+    }
+  }
+
+  measure: total_data_transfer_cost_unblended {
+    view_label: "Line Items (Individual Charges)"
+    description: "Total charges for data transfers"
+    type: sum
+    sql: ${lineitem_unblendedcost} ;;
+    value_format_name: usd_0
+    filters: {
+      field: data_transfer
+      value: "Yes"
+    }
+  }
+
+  measure: total_outbound_data_transfer_cost {
+    view_label: "Line Items (Individual Charges)"
+    description: "Total charges for data transfers"
+    type: sum
+    sql: ${lineitem_blendedcost} ;;
+    value_format_name: usd_0
+    filters: {
+      field: data_transfer_outbound
+      value: "Yes"
+    }
+  }
+
+  measure: total_inbound_data_transfer_cost {
+    view_label: "Line Items (Individual Charges)"
+    description: "Total charges for data transfers"
+    type: sum
+    sql: ${lineitem_blendedcost} ;;
+    value_format_name: usd_0
+    filters: {
+      field: data_transfer_inbound
       value: "Yes"
     }
   }
@@ -1060,7 +1123,7 @@ view: cost_and_usage {
     view_label: "Reserved Units"
     description: "How much all aggregated line items are charged to a consolidated billing account in an organization"
     type: sum
-    sql: ${lineitem_blendedcost} ;;
+    sql: ${lineitem_blendedcost};;
     value_format_name: usd_0
     filters: {
       field: ri_line_item
@@ -1079,8 +1142,52 @@ view: cost_and_usage {
       value: "Non RI Line Item"
     }
   }
+
+  measure: total_non_reserved_unblended_cost {
+    view_label: "Reserved Units"
+    description: "How much all aggregated line items are charged to a consolidated billing account in an organization"
+    type: sum
+    sql: ${lineitem_unblendedcost} ;;
+    value_format_name: usd_0
+    filters: {
+      field: ri_line_item
+      value: "Non RI Line Item"
+    }
+  }
+
+  measure: percent_spend_on_non_ris{
+    view_label: "Reserved Units"
+    type: number
+    sql: 1.0 * ${total_non_reserved_blended_cost} / NULLIF(${total_blended_cost},0) ;;
+    value_format_name: percent_2
+  }
+
+  measure: percent_spend_on_ris{
+    view_label: "Reserved Units"
+    label: "Blended RI Coverage"
+    type: number
+    sql: 1.0 * ${total_reserved_blended_cost} / NULLIF(${total_blended_cost},0) ;;
+    value_format_name: percent_2
+  }
+
+  measure: unblended_percent_spend_on_ris{
+    view_label: "Reserved Units"
+    label: "Unblended RI Coverage"
+    type: number
+    sql: 1.0 * ${total_non_reserved_unblended_cost} / NULLIF(${total_unblended_cost},0) ;;
+    value_format_name: percent_2
+  }
+
+  measure: percent_spend_data_transfers_unblended {
+    view_label: "Reserved Units"
+    label: "Unblended Data Transfer Cost Percent"
+    type: number
+    sql: 1.0 * ${total_data_transfer_cost_unblended} / NULLIF(${total_unblended_cost},0) ;;
+    value_format_name: percent_2
+  }
+
   measure: count_usage_months {
-    hidden: yes
+    # hidden: yes
     type: count_distinct
     sql: ${usage_start_month} ;;
   }
@@ -1293,23 +1400,13 @@ view: cost_and_usage {
     sql: ${reservation_numberofreservations} ;;
   }
 
-
-### SHOULD WORK, NO VALUES COMING THROUGH IN THE EXPORT
-#   measure: total_reserved_units_usage {
-#     label: "Total Reserved Unit Usage (Hours Used)"
-#     view_label: "Reserved Units"
-#     description: "The total number of hours across all reserved instances in the subscription."
-#     type: sum
-#     sql: ${reservation_totalreservedunits} ;;
-#   }
-
 ### UNTIL DISCREPENCY IS RESOLVED, USING A MANUAL CALCULATION
   measure: total_reserved_units_usage {
     label: "Total Reserved Unit Usage (Hours Used)"
     view_label: "Reserved Units"
     description: "The total number of hours across all reserved instances in the subscription."
     type: number
-    sql: COALESCE(SUM(cost_and_usage_raw.reservation_numberofreservations),0) * COALESCE(SUM(cost_and_usage_raw.reservation_normalizedunitsperreservation),0 ) ;;
+    sql: (COALESCE(SUM(cost_and_usage_raw.reservation_numberofreservations),0) * COALESCE(SUM(cost_and_usage_raw.reservation_normalizedunitsperreservation),0 ) );;
   }
 
   measure: total_normalized_reserved_units {
@@ -1327,9 +1424,5 @@ view: cost_and_usage {
     sql: ${reservation_unitsperreservation} ;;
   }
 
-  measure: total_usage_hours {
-    type: sum
-    sql: ${useage_hours} ;;
-  }
 
 }
