@@ -164,8 +164,9 @@ view: cost_and_usage {
 
   dimension: lineitem_resourceid {
     type: string
-    # hidden: yes
+    hidden: no
     sql: ${TABLE}.lineitem_resourceid ;;
+    tags: ["aws_resource_id"]
   }
 
   dimension: lineitem_taxtype {

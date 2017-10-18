@@ -2,8 +2,8 @@
   title: AWS Cost and Usage Overview
   layout: newspaper
   elements:
-  - name: Total Cost Lastest Week
-    title: Total Cost Lastest Week
+  - name: Total Cost Latest Week
+    title: Total Cost Latest Week
     model: aws_athena_cost_and_usage
     explore: cost_and_usage
     type: single_value
