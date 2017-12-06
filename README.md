@@ -3,7 +3,7 @@
 
 ### Major Cost Saving Levers
 
-Now that we have our data pipeline configured, we can dive into the most popular use-cases for cost savings. In this blog, we’ll focus on:
+This write-up will focus on:
 
 * Purchasing of Reserved vs On-Demand instances
 * Data Transfer costs
