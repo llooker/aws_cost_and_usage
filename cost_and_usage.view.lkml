@@ -101,7 +101,7 @@ view: cost_and_usage {
     view_label: "Reserved Units"
     description: "Fee is one-time RI expense for all-upfront or partial-upfront."
     type: string
-    sql: CASE WHEN ${TABLE}.lineitem_lineitemtype = "Fee" THEN "Fee" ELSE "Other" END ;;
+    sql: CASE WHEN ${TABLE}.lineitem_lineitemtype = 'Fee' THEN 'Fee' ELSE 'Other' END ;;
   }
 
   dimension: type_ri_fee_on_demand {
@@ -115,7 +115,7 @@ view: cost_and_usage {
     view_label: "Reserved Units"
     description: "Describes the instance usage that recieved a matching RI discount benefit. It is added to the bill once a reserved instance experiences usage. Cost will always be zero because it's been accounted for with Fee and RI Fee."
     type: string
-    sql: CASE WHEN ${TABLE}.lineitem_lineitemtype = "DiscountedUsage" THEN "Discounted Usage" ELSE "Other" END ;;
+    sql: CASE WHEN ${TABLE}.lineitem_lineitemtype = 'DiscountedUsage' THEN 'Discounted Usage' ELSE 'Other' END ;;
   }
 
   dimension: ri_line_item {
