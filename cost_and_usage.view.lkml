@@ -1070,6 +1070,7 @@ view: cost_and_usage {
     type: sum
     sql: ${lineitem_blendedcost} ;;
     value_format_name: usd_0
+    drill_fields: [common*, total_blended_cost,  total_measures*]
   }
 
   measure: total_data_transfer_cost {
@@ -1082,6 +1083,7 @@ view: cost_and_usage {
       field: data_transfer
       value: "Yes"
     }
+    drill_fields: [common*, total_data_transfer_cost,  total_measures*]
   }
 
   measure: total_data_transfer_cost_unblended {
@@ -1094,6 +1096,7 @@ view: cost_and_usage {
       field: data_transfer
       value: "Yes"
     }
+    drill_fields: [common*, total_data_transfer_cost_unblended,  total_measures*]
   }
 
   measure: total_outbound_data_transfer_cost {
@@ -1106,7 +1109,9 @@ view: cost_and_usage {
       field: data_transfer_outbound
       value: "Yes"
     }
+    drill_fields: [common*, total_outbound_data_transfer_cost, inbound_outbound*]
   }
+
 
   measure: total_inbound_data_transfer_cost {
     view_label: "Line Items (Individual Charges)"
@@ -1118,6 +1123,7 @@ view: cost_and_usage {
       field: data_transfer_inbound
       value: "Yes"
     }
+    drill_fields: [common*, total_inbound_data_transfer_cost, inbound_outbound*]
   }
 
   measure: total_reserved_blended_cost {
@@ -1130,6 +1136,7 @@ view: cost_and_usage {
       field: ri_line_item
       value: "RI Line Item"
     }
+    drill_fields: [common*, total_reserved_blended_cost]
   }
 
   measure: total_non_reserved_blended_cost {
@@ -1142,6 +1149,7 @@ view: cost_and_usage {
       field: ri_line_item
       value: "Non RI Line Item"
     }
+    drill_fields: [common*, total_non_reserved_blended_cost]
   }
 
   measure: total_non_reserved_unblended_cost {
@@ -1154,12 +1162,21 @@ view: cost_and_usage {
       field: ri_line_item
       value: "Non RI Line Item"
     }
+    drill_fields: [common*, total_non_reserved_unblended_cost]
   }
 
   measure: percent_spend_on_non_ris{
     view_label: "Reserved Units"
     type: number
     sql: 1.0 * ${total_non_reserved_blended_cost} / NULLIF(${total_blended_cost},0) ;;
+    link: {
+      label: "Explore Non Reserved Blended Cost"
+      url: "{{total_non_reserved_blended_cost._link}}"
+    }
+    link: {
+      label: "Explore Total Blended Cost"
+      url: "{{total_blended_cost._link}}"
+    }
     value_format_name: percent_2
   }
 
@@ -1169,6 +1186,14 @@ view: cost_and_usage {
     type: number
     sql: 1.0 * ${total_reserved_blended_cost} / NULLIF(${total_blended_cost},0) ;;
     value_format_name: percent_2
+    link: {
+      label: "Explore Reserved Blended Cost"
+      url: "{{total_reserved_blended_cost._link}}"
+    }
+    link: {
+      label: "Explore Total Blended Cost"
+      url: "{{total_blended_cost._link}}"
+    }
   }
 
   measure: unblended_percent_spend_on_ris{
@@ -1177,6 +1202,14 @@ view: cost_and_usage {
     type: number
     sql: 1.0 * ${total_non_reserved_unblended_cost} / NULLIF(${total_unblended_cost},0) ;;
     value_format_name: percent_2
+    link: {
+      label: "Explore Non Reserved Unblended Cost"
+      url: "{{total_non_reserved_unblended_cost._link}}"
+    }
+    link: {
+      label: "Explore Total Blended Cost"
+      url: "{{total_blended_cost._link}}"
+    }
   }
 
   measure: percent_spend_data_transfers_unblended {
@@ -1185,12 +1218,21 @@ view: cost_and_usage {
     type: number
     sql: 1.0 * ${total_data_transfer_cost_unblended} / NULLIF(${total_unblended_cost},0) ;;
     value_format_name: percent_2
+    link: {
+      label: "Explore Data Transfer Unblended Cost"
+      url: "{{total_data_transfer_cost_unblended._link}}"
+    }
+    link: {
+      label: "Explore Total Blended Cost"
+      url: "{{total_blended_cost._link}}"
+    }
   }
 
   measure: count_usage_months {
-    # hidden: yes
+#     hidden: yes
     type: count_distinct
     sql: ${usage_start_month} ;;
+    drill_fields: [billing_period_start_month, total_measures*]
   }
 
   measure: average_blended_cost_all_time {
@@ -1199,6 +1241,7 @@ view: cost_and_usage {
     type: average
     sql: ${lineitem_blendedcost} ;;
     value_format_name: usd
+    drill_fields: [common*, basic_blended_measures*]
   }
 
   measure: average_blended_cost_per_month {
@@ -1207,6 +1250,14 @@ view: cost_and_usage {
     type: number
     sql: ${total_blended_cost}/NULLIF(${count_usage_months},0) ;;
     value_format_name: usd_0
+    link: {
+      label: "Explore Total Blended Cost"
+      url: "{{total_blended_cost._link}}"
+    }
+    link: {
+      label: "Explore Months"
+      url: "{{count_usage_months._link}}"
+    }
   }
 
   measure: average_blended_rate {
@@ -1216,6 +1267,7 @@ view: cost_and_usage {
     type: average
     sql: ${blended_rate} ;;
     value_format_name: usd
+    drill_fields: [common*, basic_blended_measures*]
   }
 
   measure: total_usage_amount {
@@ -1224,9 +1276,8 @@ view: cost_and_usage {
     type: sum
     sql: ${lineitem_usageamount} ;;
     value_format_name: decimal_0
-    drill_fields: [usage_type]
+    drill_fields: [common*, basic_blended_measures*]
   }
-
 
   ### PRODUCT SPECIFIC COST MEASURES ###
 
@@ -1239,6 +1290,7 @@ view: cost_and_usage {
       field: product_code
       value: "AmazonEC2"
     }
+    drill_fields: [common*, EC2_usage_amount, ec2_measures*]
   }
 
   measure: cloudfront_usage_amount {
@@ -1249,6 +1301,7 @@ view: cost_and_usage {
       field: product_code
       value: "AmazonCloudFront"
     }
+    drill_fields: [common*, cloudfront_usage_amount]
   }
 
   measure: cloudtrail_usage_amount {
@@ -1259,6 +1312,7 @@ view: cost_and_usage {
       field: product_code
       value: "AWSCloudTrail"
     }
+    drill_fields: [common*, cloudtrail_usage_amount]
   }
   measure: S3_usage_amount {
     view_label: "Product Info"
@@ -1268,6 +1322,7 @@ view: cost_and_usage {
       field: product_code
       value: "AmazonS3"
     }
+    drill_fields: [common*, S3_usage_amount]
   }
 
   measure: redshift_usage_amount {
@@ -1278,6 +1333,7 @@ view: cost_and_usage {
       field: product_code
       value: "AmazonRedshift"
     }
+    drill_fields: [common*, redshift_usage_amount]
   }
 
   measure: rds_usage_amount {
@@ -1289,6 +1345,7 @@ view: cost_and_usage {
       field: product_code
       value: "AmazonRDS"
     }
+    drill_fields: [common*, rds_usage_amount]
   }
 
   measure: EC2_blended_cost {
@@ -1301,6 +1358,7 @@ view: cost_and_usage {
       field: product_code
       value: "AmazonEC2"
     }
+    drill_fields: [common*, EC2_blended_cost, ec2_measures*]
   }
 
   measure: EC2_reserved_blended_cost {
@@ -1317,6 +1375,7 @@ view: cost_and_usage {
       field: ri_line_item
       value: "RI Line Item"
     }
+    drill_fields: [common*, EC2_reserved_blended_cost, ec2_measures*]
   }
 
   measure: EC2_non_reserved_blended_cost {
@@ -1333,6 +1392,7 @@ view: cost_and_usage {
       field: ri_line_item
       value: "Non RI Line Item"
     }
+    drill_fields: [common*, EC2_non_reserved_blended_cost, ec2_measures*]
   }
 
   measure: cloudfront_blended_cost {
@@ -1344,6 +1404,7 @@ view: cost_and_usage {
       field: product_code
       value: "AmazonCloudFront"
     }
+    drill_fields: [common*, cloudtrail_blended_cost]
   }
 
   measure: cloudtrail_blended_cost {
@@ -1355,6 +1416,7 @@ view: cost_and_usage {
       field: product_code
       value: "AWSCloudTrail"
     }
+    drill_fields: [common*, cloudtrail_blended_cost]
   }
   measure: S3_blended_cost {
     view_label: "Product Info"
@@ -1365,6 +1427,7 @@ view: cost_and_usage {
       field: product_code
       value: "AmazonS3"
     }
+    drill_fields: [common*, S3_blended_cost]
   }
 
   measure: redshift_blended_cost {
@@ -1376,6 +1439,7 @@ view: cost_and_usage {
       field: product_code
       value: "AmazonRedshift"
     }
+    drill_fields: [common*, redshift_blended_cost]
   }
 
   measure: rds_blended_cost {
@@ -1388,6 +1452,7 @@ view: cost_and_usage {
       field: product_code
       value: "AmazonRDS"
     }
+    drill_fields: [common*, rds_blended_cost]
   }
 
 
@@ -1399,6 +1464,7 @@ view: cost_and_usage {
     description: "The number of reservations covered by this subscription. For example, one Reserved Instance (RI) subscription may have four associated RI reservations."
     type: sum
     sql: ${reservation_numberofreservations} ;;
+    drill_fields: [common*, number_of_reservations, total_measures*]
   }
 
 ### UNTIL DISCREPENCY IS RESOLVED, USING A MANUAL CALCULATION
@@ -1408,6 +1474,7 @@ view: cost_and_usage {
     description: "The total number of hours across all reserved instances in the subscription."
     type: number
     sql: (COALESCE(SUM(cost_and_usage_raw.reservation_numberofreservations),0) * COALESCE(SUM(cost_and_usage_raw.reservation_normalizedunitsperreservation),0 ) );;
+    drill_fields: [common*, total_reserved_units_usage, total_measures*]
   }
 
   measure: total_normalized_reserved_units {
@@ -1415,6 +1482,7 @@ view: cost_and_usage {
     description: "The value for Usage Amount multiplied by the value for Normalization Factor"
     type: sum
     sql: ${reservation_totalreservednormalizedunits} ;;
+    drill_fields: [common*, total_normalized_reserved_units, total_measures*]
   }
 
   measure: units_per_reservation {
@@ -1423,7 +1491,13 @@ view: cost_and_usage {
     description: "The number of usage units reserved by a single reservation in a given subscription, such as how many hours a single Amazon EC2 RI has reserved."
     type: sum
     sql: ${reservation_unitsperreservation} ;;
+    drill_fields: [common*, units_per_reservation, total_measures*]
   }
 
+  set: common {fields: [lineitem_resourceid, line_item_operation,   type, bill_payeraccountid]}
+  set: total_measures {fields: [total_data_transfer_cost_unblended, total_data_transfer_cost, total_blended_cost, total_unblended_cost]  }
+  set: inbound_outbound {fields: [total_data_transfer_cost_unblended, total_data_transfer_cost, total_outbound_data_transfer_cost, total_inbound_data_transfer_cost]}
+  set: basic_blended_measures {fields: [average_blended_cost_per_month, average_blended_rate, total_usage_amount]}
+  set: ec2_measures {fields: [EC2_blended_cost,EC2_reserved_blended_cost,EC2_non_reserved_blended_cost,EC2_usage_amount]}
 
 }
