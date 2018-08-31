@@ -1494,7 +1494,7 @@ view: cost_and_usage {
     drill_fields: [common*, units_per_reservation, total_measures*]
   }
 
-  set: common {fields: [lineitem_resourceid, line_item_operation,   type, bill_payeraccountid]}
+  set: common {fields: [lineitem_resourceid, line_item_operation,   type, bill_payeraccountid, description]}
   set: total_measures {fields: [total_data_transfer_cost_unblended, total_data_transfer_cost, total_blended_cost, total_unblended_cost]  }
   set: inbound_outbound {fields: [total_data_transfer_cost_unblended, total_data_transfer_cost, total_outbound_data_transfer_cost, total_inbound_data_transfer_cost]}
   set: basic_blended_measures {fields: [average_blended_cost_per_month, average_blended_rate, total_usage_amount]}
