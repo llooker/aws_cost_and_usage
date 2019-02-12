@@ -32,4 +32,5 @@ First, since costs increase when transferring data between regions, it’s wise 
 AWS provides the option to apply custom tags to individual resources, so you can allocate costs over whatever customized segment makes the most sense for your business. For a SaaS company that hosts software for customers on AWS, maybe you’d want to tag the size of each customer. The below query uses custom tags to display the reserved, data transfer, and total cost for each AWS service, broken out by tag categories, over the last 30 days. You’ll want to substitute the text highlighted in red with the name of your customer field.
 
 
-
+Setup Instructions: 
+https://aws.amazon.com/blogs/big-data/analyzing-aws-cost-and-usage-reports-with-looker-and-amazon-athena/
