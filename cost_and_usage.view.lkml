@@ -1,25 +1,25 @@
 view: cost_and_usage {
-  sql_table_name: aws_optimizer.cost_and_usage_raw ;;
+  sql_table_name: ANALYTICS.DATA_SQUAD_REPORTING_PROD.AWS_COSTS_ALL_ACCOUNTS_HOURLY ;;
   suggestions: no
 
   dimension: bill_billing_entity {
     type: string
     hidden: yes
-    sql: ${TABLE}.bill_billingentity ;;
+    sql: ${TABLE}.bill_billing_entity ;;
   }
 
   dimension_group: billing_period_end {
     view_label: "Billing Info"
     type: time
     timeframes: [time,date,week,month,year]
-    sql: from_iso8601_timestamp(${TABLE}.bill_billingperiodenddate);;
+    sql: from_iso8601_timestamp(${TABLE}.billing_period_end_date);;
   }
 
   dimension_group: billing_period_start {
     view_label: "Billing Info"
     type: time
     timeframes: [time,date,week,month,year]
-    sql: from_iso8601_timestamp(${TABLE}.bill_billingperiodstartdate) ;;
+    sql: from_iso8601_timestamp(${TABLE}.billing_period_start_date) ;;
   }
 
 
@@ -27,64 +27,64 @@ view: cost_and_usage {
     label: "Type"
     view_label: "Billing Info"
     type: string
-    sql: ${TABLE}.bill_billtype ;;
+    sql: ${TABLE}.bill_bill_type ;;
   }
 
   dimension: bill_invoiceid {
     type: string
     hidden: yes
-    sql: ${TABLE}.bill_invoiceid ;;
+    sql: ${TABLE}.bill_invoice_id ;;
   }
 
   dimension: bill_payeraccountid {
     type: string
     hidden: yes
-    sql: ${TABLE}.bill_payeraccountid ;;
+    sql: ${TABLE}.bill_payer_account_id ;;
   }
 
   dimension: identity_lineitemid {
     type: string
     hidden: yes
-    sql: ${TABLE}.identity_lineitemid ;;
+    sql: ${TABLE}.identity_line_item_id ;;
   }
 
   dimension: identity_timeinterval {
     type: string
     hidden: yes
-    sql: ${TABLE}.identity_timeinterval ;;
+    sql: ${TABLE}.identity_time_interval ;;
   }
 
   dimension: lineitem_availabilityzone {
     type: string
     hidden: yes
-    sql: ${TABLE}.lineitem_availabilityzone ;;
+    sql: ${TABLE}.line_item_availability_zone ;;
   }
 
   dimension: lineitem_blendedcost {
     hidden: yes
     type: number
-    sql: ${TABLE}.lineitem_blendedcost ;;
+    sql: ${TABLE}.line_item_blended_cost ;;
   }
 
   dimension: blended_rate {
     view_label: "Line Items (Individual Charges)"
     description: "The rate applied to this line item for a consolidated billing account in an organization."
     type: number
-    sql: ${TABLE}.lineitem_blendedrate ;;
+    sql: ${TABLE}.line_item_blended_rate ;;
   }
 
   dimension: lineitem_currencycode {
     label: "Currency Code"
     view_label: "Line Items (Individual Charges)"
     type: string
-    sql: ${TABLE}.lineitem_currencycode ;;
+    sql: ${TABLE}.line_item_currency_code ;;
   }
 
   dimension: description {
     view_label: "Line Items (Individual Charges)"
     description: "A description of the pricing tier covered by this line item"
     type: string
-    sql: ${TABLE}.lineitem_lineitemdescription ;;
+    sql: ${TABLE}.line_item_line_item_description ;;
   }
 
 
@@ -94,28 +94,28 @@ view: cost_and_usage {
     view_label: "Line Items (Individual Charges)"
     description: "Fee is one-time RI expense for all-upfront or partial-upfront. RI Fee is recurring RI expense for partial-upfront and no-upfront RI expenses."
     type: string
-    sql: ${TABLE}.lineitem_lineitemtype ;;
+    sql: ${TABLE}.line_item_line_item_type ;;
   }
 
   dimension: type_ri_fee_upfront {
     view_label: "Reserved Units"
     description: "Fee is one-time RI expense for all-upfront or partial-upfront."
     type: string
-    sql: CASE WHEN ${TABLE}.lineitem_lineitemtype = 'Fee' THEN 'Fee' ELSE 'Other' END ;;
+    sql: CASE WHEN ${TABLE}.line_item_line_item_type = 'Fee' THEN 'Fee' ELSE 'Other' END ;;
   }
 
   dimension: type_ri_fee_on_demand {
     view_label: "Reserved Units"
     description: "RI Fee is recurring RI expense for partial-upfront and no-upfront RI expenses."
     type: string
-    sql: CASE WHEN ${TABLE}.lineitem_lineitemtype = 'RIFee' THEN 'RI Fee' ELSE 'Other' END ;;
+    sql: CASE WHEN ${TABLE}.line_item_line_item_type = 'RIFee' THEN 'RI Fee' ELSE 'Other' END ;;
   }
 
   dimension: type_discounted_usage {
     view_label: "Reserved Units"
     description: "Describes the instance usage that recieved a matching RI discount benefit. It is added to the bill once a reserved instance experiences usage. Cost will always be zero because it's been accounted for with Fee and RI Fee."
     type: string
-    sql: CASE WHEN ${TABLE}.lineitem_lineitemtype = 'DiscountedUsage' THEN 'Discounted Usage' ELSE 'Other' END ;;
+    sql: CASE WHEN ${TABLE}.line_item_line_item_type = 'DiscountedUsage' THEN 'Discounted Usage' ELSE 'Other' END ;;
   }
 
   dimension: ri_line_item {
@@ -139,33 +139,33 @@ view: cost_and_usage {
     view_label: "Line Items (Individual Charges)"
     description: "Degree of instance size flexibility provided by RIs"
     type: number
-    sql: ${TABLE}.lineitem_normalizationfactor ;;
+    sql: ${TABLE}.line_item_normalization_factor ;;
   }
 
   dimension: lineitem_normalizedusageamount {
     hidden: yes
     type: number
-    sql: ${TABLE}.lineitem_normalizedusageamount ;;
+    sql: ${TABLE}.line_item_normalized_usage_amount ;;
   }
 
   dimension: line_item_operation {
     label: "Operation"
     view_label: "Line Items (Individual Charges)"
     type: string
-    sql: ${TABLE}.lineitem_operation ;;
+    sql: ${TABLE}.line_item_operation ;;
   }
 
   dimension: product_code {
     description: "The AWS product/service being used"
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.lineitem_productcode ;;
+    sql: ${TABLE}.line_item_product_code ;;
   }
 
   dimension: lineitem_resourceid {
     type: string
     hidden: no
-    sql: ${TABLE}.lineitem_resourceid ;;
+    sql: ${TABLE}.line_item_resource_id ;;
     tags: ["aws_resource_id"]
   }
 
@@ -173,20 +173,20 @@ view: cost_and_usage {
     label: "Tax Type"
     view_label: "Line Items (Individual Charges)"
     type: string
-    sql: ${TABLE}.lineitem_taxtype ;;
+    sql: ${TABLE}.line_item_tax_type ;;
   }
 
   dimension: lineitem_unblendedcost {
     type: number
     hidden: yes
-    sql: ${TABLE}.lineitem_unblendedcost ;;
+    sql: ${TABLE}.line_item_unblended_cost ;;
   }
 
   dimension: unblended_rate {
     view_label: "Line Items (Individual Charges)"
     description: "The rate that this line item would have been charged for an unconsolidated account."
     type: number
-    sql: ${TABLE}.lineitem_unblendedrate ;;
+    sql: ${TABLE}.line_item_unblended_rate ;;
   }
 
   dimension: lineitem_usageaccountid {
@@ -195,27 +195,27 @@ view: cost_and_usage {
     description: "RIs can span multiple accounts - this dimensions related to usage"
     type: string
     # hidden: yes
-    sql: ${TABLE}.lineitem_usageaccountid ;;
+    sql: ${TABLE}.line_item_usage_account_id ;;
   }
 
   dimension: lineitem_usageamount {
     type: number
     hidden: yes
-    sql: ${TABLE}.lineitem_usageamount ;;
+    sql: ${TABLE}.line_item_usage_amount ;;
   }
 
   dimension_group: usage_end {
     view_label: "Line Items (Individual Charges)"
     type: time
     timeframes: [raw, time,time_of_day,hour,date,week,day_of_week,month,month_name,year]
-    sql: from_iso8601_timestamp(${TABLE}.lineitem_usageenddate) ;;
+    sql: from_iso8601_timestamp(${TABLE}.line_item_usage_end_date) ;;
   }
 
   dimension_group: usage_start {
     view_label: "Line Items (Individual Charges)"
     type: time
     timeframes: [raw, time,time_of_day,hour,date,week,day_of_week,month,month_name,year]
-    sql: from_iso8601_timestamp(${TABLE}.lineitem_usagestartdate);;
+    sql: from_iso8601_timestamp(${TABLE}.line_item_usage_start_date);;
   }
 
   dimension: usage_hours {
@@ -235,28 +235,28 @@ view: cost_and_usage {
     view_label: "Line Items (Individual Charges)"
     description: "The type of usage covered by this line item. If you paid for a Reserved Instance, the report has one line that shows the monthly committed cost, and multiple lines that show a charge of 0."
     type: string
-    sql: ${TABLE}.lineitem_usagetype ;;
+    sql: ${TABLE}.line_item_usage_type ;;
   }
 
   dimension: product_accountassistance {
     label: "Account Assistance"
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_accountassistance ;;
+    sql: ${TABLE}.product_account_assistance ;;
   }
 
   dimension: product_architecturalreview {
     label: "Architecture Review"
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_architecturalreview ;;
+    sql: ${TABLE}.product_architectural_review ;;
   }
 
   dimension: product_architecturesupport {
     label: "Architecture Support"
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_architecturesupport ;;
+    sql: ${TABLE}.product_architecture_support ;;
   }
 
   dimension: product_availability {
@@ -269,65 +269,65 @@ view: cost_and_usage {
   dimension: product_bestpractices {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_bestpractices ;;
+    sql: ${TABLE}.product_best_practices ;;
   }
 
   dimension: product_cacheengine {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_cacheengine ;;
+    sql: ${TABLE}.product_cache_engine ;;
   }
 
   dimension: product_caseseverityresponsetimes {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_caseseverityresponsetimes ;;
+    sql: ${TABLE}.product_case_severity_response_times ;;
   }
 
   dimension: product_clockspeed {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_clockspeed ;;
+    sql: ${TABLE}.product_clock_speed ;;
   }
 
   dimension: product_currentgeneration {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_currentgeneration ;;
+    sql: ${TABLE}.product_current_generation ;;
   }
 
   dimension: product_customerserviceandcommunities {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_customerserviceandcommunities ;;
+    sql: ${TABLE}.product_customer_service_and_communities ;;
   }
 
   dimension: product_databaseedition {
     label: "Database Edition"
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_databaseedition ;;
+    sql: ${TABLE}.product_database_edition ;;
   }
 
   dimension: product_databaseengine {
     label: "Database Engine"
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_databaseengine ;;
+    sql: ${TABLE}.product_databas_eengine ;;
   }
 
   dimension: product_dedicatedebsthroughput {
     label: "Dedicated EBS Throughput"
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_dedicatedebsthroughput ;;
+    sql: ${TABLE}.product_dedicated_ebs_throughput ;;
   }
 
   dimension: product_deploymentoption {
     view_label: "Product Info"
     hidden: yes
     type: string
-    sql: ${TABLE}.product_deploymentoption ;;
+    sql: ${TABLE}.product_deployment_option ;;
   }
 
   dimension: product_description {
@@ -347,7 +347,7 @@ view: cost_and_usage {
   dimension: product_ebsoptimized {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_ebsoptimized ;;
+    sql: ${TABLE}.product_ebs_optimized ;;
   }
 
   dimension: product_ecu {
@@ -359,69 +359,69 @@ view: cost_and_usage {
   dimension: endpoint_type {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_endpointtype ;;
+    sql: ${TABLE}.product_endpoint_type ;;
   }
 
   dimension: engine_code {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_enginecode ;;
+    sql: ${TABLE}.product_engine_code ;;
   }
 
   dimension: product_enhancednetworkingsupported {
     view_label: "Product Info"
     hidden: yes
     type: string
-    sql: ${TABLE}.product_enhancednetworkingsupported ;;
+    sql: ${TABLE}.product_enhanced_networking_supported ;;
   }
 
   dimension: execution_frequency {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_executionfrequency ;;
+    sql: ${TABLE}.product_execution_frequency ;;
   }
 
   dimension: execution_location {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_executionlocation ;;
+    sql: ${TABLE}.product_execution_location ;;
   }
 
   dimension: product_feecode {
     type: string
     hidden: yes
-    sql: ${TABLE}.product_feecode ;;
+    sql: ${TABLE}.product_fee_code ;;
   }
 
   dimension: product_feedescription {
     type: string
     hidden: yes
-    sql: ${TABLE}.product_feedescription ;;
+    sql: ${TABLE}.product_fee_description ;;
   }
 
   dimension: product_freequerytypes {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_freequerytypes ;;
+    sql: ${TABLE}.product_free_query_types ;;
   }
 
   dimension: free_trial {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_freetrial ;;
+    sql: ${TABLE}.product_free_trial ;;
   }
 
   dimension: product_frequencymode {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_frequencymode ;;
+    sql: ${TABLE}.product_frequency_mode ;;
   }
 
   dimension: from_location {
     view_label: "Product Info"
     type: string
 #     map_layer_name: countries
-    sql: ${TABLE}.product_fromlocation ;;
+    sql: ${TABLE}.product_from_location ;;
   }
 
   dimension: from_location_viz {
@@ -445,24 +445,24 @@ view: cost_and_usage {
     hidden: yes
     type: string
     sql: CASE
-        WHEN ${TABLE}.product_fromlocation = 'Asia Pacific (Mumbai)' THEN '19.075984'
-        WHEN ${TABLE}.product_fromlocation = 'Asia Pacific (Seoul)' THEN '37.566535'
-        WHEN ${TABLE}.product_fromlocation = 'Asia Pacific (Singapore)' THEN '1.352083'
-        WHEN ${TABLE}.product_fromlocation = 'Asia Pacific (Sydney)' THEN '-33.868820'
-        WHEN ${TABLE}.product_fromlocation = 'Asia Pacific (Tokyo)' THEN '35.689487'
-        WHEN ${TABLE}.product_fromlocation = 'Australia' THEN '-25.274398'
-        WHEN ${TABLE}.product_fromlocation = 'Canada' THEN '56.130366'
-        WHEN ${TABLE}.product_fromlocation = 'Canada (Central)' THEN '56.130366'
-        WHEN ${TABLE}.product_fromlocation = 'EU (Frankfurt)' THEN '50.110922'
-        WHEN ${TABLE}.product_fromlocation = 'EU (Ireland)' THEN '53.142367'
-        WHEN ${TABLE}.product_fromlocation = 'India' THEN '20.593684'
-        WHEN ${TABLE}.product_fromlocation = 'Japan' THEN '36.204824'
-        WHEN ${TABLE}.product_fromlocation = 'South America (Sao Paulo)' THEN '-23.550520'
-        WHEN ${TABLE}.product_fromlocation = 'South America' THEN '-23.550520'
-        WHEN ${TABLE}.product_fromlocation = 'US East (N. Virginia)' THEN '37.431573'
-        WHEN ${TABLE}.product_fromlocation = 'US East (Ohio)' THEN '40.417287'
-        WHEN ${TABLE}.product_fromlocation = 'US West (N. California)' THEN '38.837522'
-        WHEN ${TABLE}.product_fromlocation = 'US WEST (Oregon)' THEN '43.804133'
+        WHEN ${TABLE}.product_from_location = 'Asia Pacific (Mumbai)' THEN '19.075984'
+        WHEN ${TABLE}.product_from_location = 'Asia Pacific (Seoul)' THEN '37.566535'
+        WHEN ${TABLE}.product_from_location = 'Asia Pacific (Singapore)' THEN '1.352083'
+        WHEN ${TABLE}.product_from_location = 'Asia Pacific (Sydney)' THEN '-33.868820'
+        WHEN ${TABLE}.product_from_location = 'Asia Pacific (Tokyo)' THEN '35.689487'
+        WHEN ${TABLE}.product_from_location = 'Australia' THEN '-25.274398'
+        WHEN ${TABLE}.product_from_location = 'Canada' THEN '56.130366'
+        WHEN ${TABLE}.product_from_location = 'Canada (Central)' THEN '56.130366'
+        WHEN ${TABLE}.product_from_location = 'EU (Frankfurt)' THEN '50.110922'
+        WHEN ${TABLE}.product_from_location = 'EU (Ireland)' THEN '53.142367'
+        WHEN ${TABLE}.product_from_location = 'India' THEN '20.593684'
+        WHEN ${TABLE}.product_from_location = 'Japan' THEN '36.204824'
+        WHEN ${TABLE}.product_from_location = 'South America (Sao Paulo)' THEN '-23.550520'
+        WHEN ${TABLE}.product_from_location = 'South America' THEN '-23.550520'
+        WHEN ${TABLE}.product_from_location = 'US East (N. Virginia)' THEN '37.431573'
+        WHEN ${TABLE}.product_from_location = 'US East (Ohio)' THEN '40.417287'
+        WHEN ${TABLE}.product_from_location = 'US West (N. California)' THEN '38.837522'
+        WHEN ${TABLE}.product_from_location = 'US WEST (Oregon)' THEN '43.804133'
         ELSE 'Not labeled'
         END
         ;;
@@ -472,24 +472,24 @@ view: cost_and_usage {
     hidden: yes
     type: string
     sql: CASE
-        WHEN ${TABLE}.product_fromlocation = 'Asia Pacific (Mumbai)' THEN '72.877656'
-        WHEN ${TABLE}.product_fromlocation = 'Asia Pacific (Seoul)' THEN '126.977969'
-        WHEN ${TABLE}.product_fromlocation = 'Asia Pacific (Singapore)' THEN '103.819836'
-        WHEN ${TABLE}.product_fromlocation = 'Asia Pacific (Sydney)' THEN '151.209296'
-        WHEN ${TABLE}.product_fromlocation = 'Asia Pacific (Tokyo)' THEN '139.691706'
-        WHEN ${TABLE}.product_fromlocation = 'Australia' THEN '133.775136'
-        WHEN ${TABLE}.product_fromlocation = 'Canada' THEN '-106.346771'
-        WHEN ${TABLE}.product_fromlocation = 'Canada (Central)' THEN '-106.346771'
-        WHEN ${TABLE}.product_fromlocation = 'EU (Frankfurt)' THEN '8.682127'
-        WHEN ${TABLE}.product_fromlocation = 'EU (Ireland)' THEN '-7.692054'
-        WHEN ${TABLE}.product_fromlocation = 'India' THEN '78.962880'
-        WHEN ${TABLE}.product_fromlocation = 'Japan' THEN '138.252924'
-        WHEN ${TABLE}.product_fromlocation = 'South America (Sao Paulo)' THEN '-46.633309'
-        WHEN ${TABLE}.product_fromlocation = 'South America' THEN '-46.633309'
-        WHEN ${TABLE}.product_fromlocation = 'US East (N. Virginia)' THEN '-78.656894'
-        WHEN ${TABLE}.product_fromlocation = 'US East (Ohio)' THEN '-82.907123'
-        WHEN ${TABLE}.product_fromlocation = 'US West (N. California)' THEN '-120.895824'
-        WHEN ${TABLE}.product_fromlocation = 'US West (Oregon)' THEN '-120.554201'
+        WHEN ${TABLE}.product_from_location = 'Asia Pacific (Mumbai)' THEN '72.877656'
+        WHEN ${TABLE}.product_from_location = 'Asia Pacific (Seoul)' THEN '126.977969'
+        WHEN ${TABLE}.product_from_location = 'Asia Pacific (Singapore)' THEN '103.819836'
+        WHEN ${TABLE}.product_from_location = 'Asia Pacific (Sydney)' THEN '151.209296'
+        WHEN ${TABLE}.product_from_location = 'Asia Pacific (Tokyo)' THEN '139.691706'
+        WHEN ${TABLE}.product_from_location = 'Australia' THEN '133.775136'
+        WHEN ${TABLE}.product_from_location = 'Canada' THEN '-106.346771'
+        WHEN ${TABLE}.product_from_location = 'Canada (Central)' THEN '-106.346771'
+        WHEN ${TABLE}.product_from_location = 'EU (Frankfurt)' THEN '8.682127'
+        WHEN ${TABLE}.product_from_location = 'EU (Ireland)' THEN '-7.692054'
+        WHEN ${TABLE}.product_from_location = 'India' THEN '78.962880'
+        WHEN ${TABLE}.product_from_location = 'Japan' THEN '138.252924'
+        WHEN ${TABLE}.product_from_location = 'South America (Sao Paulo)' THEN '-46.633309'
+        WHEN ${TABLE}.product_from_location = 'South America' THEN '-46.633309'
+        WHEN ${TABLE}.product_from_location = 'US East (N. Virginia)' THEN '-78.656894'
+        WHEN ${TABLE}.product_from_location = 'US East (Ohio)' THEN '-82.907123'
+        WHEN ${TABLE}.product_from_location = 'US West (N. California)' THEN '-120.895824'
+        WHEN ${TABLE}.product_from_location = 'US West (Oregon)' THEN '-120.554201'
         ELSE 'Not labeled'
         END
         ;;
@@ -500,24 +500,24 @@ view: cost_and_usage {
     hidden: yes
     type: string
     sql: CASE
-    WHEN ${TABLE}.product_tolocation = 'Asia Pacific (Mumbai)' OR ${TABLE}.product_tolocationtype = 'Asia Pacific (Mumbai)' THEN '19.075984'
-    WHEN ${TABLE}.product_tolocation = 'Asia Pacific (Seoul)' OR ${TABLE}.product_tolocationtype = 'Asia Pacific (Seoul)' THEN '37.566535'
-    WHEN ${TABLE}.product_tolocation = 'Asia Pacific (Singapore)' OR ${TABLE}.product_tolocationtype = 'Asia Pacific (Singapore)' THEN '1.352083'
-    WHEN ${TABLE}.product_tolocation = 'Asia Pacific (Sydney)' OR ${TABLE}.product_tolocationtype = 'Asia Pacific (Sydney)' THEN '-33.868820'
-    WHEN ${TABLE}.product_tolocation = 'Asia Pacific (Tokyo)' OR ${TABLE}.product_tolocationtype = 'Asia Pacific (Tokyo)' THEN '35.689487'
-    WHEN ${TABLE}.product_tolocation = 'Australia' OR ${TABLE}.product_tolocationtype = 'Australia' THEN '-25.274398'
-    WHEN ${TABLE}.product_tolocation = 'Canada' OR ${TABLE}.product_tolocationtype = 'Canada' THEN '56.130366'
-    WHEN ${TABLE}.product_tolocation = 'Canada (Central)' OR ${TABLE}.product_tolocationtype = 'Canada (Central)' THEN '56.130366'
-    WHEN ${TABLE}.product_tolocation = 'EU (Frankfurt)' OR ${TABLE}.product_tolocationtype = 'EU (Frankfurt)' THEN '50.110922'
-    WHEN ${TABLE}.product_tolocation = 'EU (Ireland)' OR ${TABLE}.product_tolocationtype = 'EU (Ireland)' THEN '53.142367'
-    WHEN ${TABLE}.product_tolocation = 'India' OR ${TABLE}.product_tolocationtype = 'India' THEN  '20.593684'
-    WHEN ${TABLE}.product_tolocation = 'Japan' OR ${TABLE}.product_tolocationtype = 'Japan' THEN '36.204824'
-    WHEN ${TABLE}.product_tolocation = 'South America (Sao Paulo)' OR ${TABLE}.product_tolocationtype = 'South America (Sao Paulo)' THEN '-23.550520'
-    WHEN ${TABLE}.product_tolocation = 'South America' OR ${TABLE}.product_tolocationtype = 'South America' THEN  '-23.550520'
-    WHEN ${TABLE}.product_tolocation = 'US East (N. Virginia)' OR ${TABLE}.product_tolocationtype = 'US East (N. Virginia)' THEN '37.431573'
-    WHEN ${TABLE}.product_tolocation = 'US East (Ohio)' OR ${TABLE}.product_tolocationtype = 'US East (Ohio)' THEN '40.417287'
-    WHEN ${TABLE}.product_tolocation = 'US West (N. California)' OR ${TABLE}.product_tolocationtype = 'US West (N. California)' THEN '38.837522'
-    WHEN ${TABLE}.product_tolocation = 'US WEST (Oregon)' OR ${TABLE}.product_tolocationtype = 'US WEST (Oregon)' THEN '43.804133'
+    WHEN ${TABLE}.product_to_location = 'Asia Pacific (Mumbai)' OR ${TABLE}.product_to_location_type = 'Asia Pacific (Mumbai)' THEN '19.075984'
+    WHEN ${TABLE}.product_to_location = 'Asia Pacific (Seoul)' OR ${TABLE}.product_to_location_type = 'Asia Pacific (Seoul)' THEN '37.566535'
+    WHEN ${TABLE}.product_to_location = 'Asia Pacific (Singapore)' OR ${TABLE}.product_to_location_type = 'Asia Pacific (Singapore)' THEN '1.352083'
+    WHEN ${TABLE}.product_to_location = 'Asia Pacific (Sydney)' OR ${TABLE}.product_to_location_type = 'Asia Pacific (Sydney)' THEN '-33.868820'
+    WHEN ${TABLE}.product_to_location = 'Asia Pacific (Tokyo)' OR ${TABLE}.product_to_location_type = 'Asia Pacific (Tokyo)' THEN '35.689487'
+    WHEN ${TABLE}.product_to_location = 'Australia' OR ${TABLE}.product_to_location_type = 'Australia' THEN '-25.274398'
+    WHEN ${TABLE}.product_to_location = 'Canada' OR ${TABLE}.product_to_location_type = 'Canada' THEN '56.130366'
+    WHEN ${TABLE}.product_to_location = 'Canada (Central)' OR ${TABLE}.product_to_location_type = 'Canada (Central)' THEN '56.130366'
+    WHEN ${TABLE}.product_to_location = 'EU (Frankfurt)' OR ${TABLE}.product_to_location_type = 'EU (Frankfurt)' THEN '50.110922'
+    WHEN ${TABLE}.product_to_location = 'EU (Ireland)' OR ${TABLE}.product_to_location_type = 'EU (Ireland)' THEN '53.142367'
+    WHEN ${TABLE}.product_to_location = 'India' OR ${TABLE}.product_to_location_type = 'India' THEN  '20.593684'
+    WHEN ${TABLE}.product_to_location = 'Japan' OR ${TABLE}.product_to_location_type = 'Japan' THEN '36.204824'
+    WHEN ${TABLE}.product_to_location = 'South America (Sao Paulo)' OR ${TABLE}.product_to_location_type = 'South America (Sao Paulo)' THEN '-23.550520'
+    WHEN ${TABLE}.product_to_location = 'South America' OR ${TABLE}.product_to_location_type = 'South America' THEN  '-23.550520'
+    WHEN ${TABLE}.product_to_location = 'US East (N. Virginia)' OR ${TABLE}.product_to_location_type = 'US East (N. Virginia)' THEN '37.431573'
+    WHEN ${TABLE}.product_to_location = 'US East (Ohio)' OR ${TABLE}.product_to_location_type = 'US East (Ohio)' THEN '40.417287'
+    WHEN ${TABLE}.product_to_location = 'US West (N. California)' OR ${TABLE}.product_to_location_type = 'US West (N. California)' THEN '38.837522'
+    WHEN ${TABLE}.product_to_location = 'US WEST (Oregon)' OR ${TABLE}.product_to_location_type = 'US WEST (Oregon)' THEN '43.804133'
     ELSE 'Not labeled'
     END
         ;;
@@ -528,24 +528,24 @@ view: cost_and_usage {
     hidden: yes
     type: string
     sql: CASE
-    WHEN ${TABLE}.product_tolocation = 'Asia Pacific (Mumbai)' OR ${TABLE}.product_tolocationtype = 'Asia Pacific (Mumbai)' THEN '72.877656'
-    WHEN ${TABLE}.product_tolocation = 'Asia Pacific (Seoul)' OR  ${TABLE}.product_tolocationtype = 'Asia Pacific (Seoul)' THEN '126.977969'
-    WHEN ${TABLE}.product_tolocation = 'Asia Pacific (Singapore)' OR ${TABLE}.product_tolocationtype = 'Asia Pacific (Singapore)' THEN '103.819836'
-    WHEN ${TABLE}.product_tolocation = 'Asia Pacific (Sydney)' OR ${TABLE}.product_tolocationtype = 'Asia Pacific (Sydney)' THEN '151.209296'
-    WHEN ${TABLE}.product_tolocation = 'Asia Pacific (Tokyo)' OR ${TABLE}.product_tolocationtype = 'Asia Pacific (Tokyo)' THEN '139.691706'
-    WHEN ${TABLE}.product_tolocation = 'Australia' OR ${TABLE}.product_tolocationtype = 'Australia' THEN '133.775136'
-    WHEN ${TABLE}.product_tolocation = 'Canada' OR ${TABLE}.product_tolocationtype  = 'Canada' THEN  '-106.346771'
-    WHEN ${TABLE}.product_tolocation = 'Canada (Central)' OR ${TABLE}.product_tolocationtype = 'Canada (Central)' THEN '-106.346771'
-    WHEN ${TABLE}.product_tolocation = 'EU (Frankfurt)' OR ${TABLE}.product_tolocationtype = 'EU (Frankfurt)' THEN '8.682127'
-    WHEN ${TABLE}.product_tolocation = 'EU (Ireland)' OR ${TABLE}.product_tolocationtype = 'EU (Ireland)' THEN '-7.692054'
-    WHEN ${TABLE}.product_tolocation = 'India' OR ${TABLE}.product_tolocationtype = 'India' THEN '78.962880'
-    WHEN ${TABLE}.product_tolocation = 'Japan' OR ${TABLE}.product_tolocationtype = 'Japan' THEN '138.252924'
-    WHEN ${TABLE}.product_tolocation = 'South America (Sao Paulo)' OR ${TABLE}.product_tolocationtype = 'South America (Sao Paulo)' THEN '-46.633309'
-    WHEN ${TABLE}.product_tolocation = 'South America' OR ${TABLE}.product_tolocationtype = 'South America' THEN '-46.633309'
-    WHEN ${TABLE}.product_tolocation = 'US East (N. Virginia)' OR ${TABLE}.product_tolocationtype = 'US East (N. Virginia)' THEN '-78.656894'
-    WHEN ${TABLE}.product_tolocation = 'US East (Ohio)' OR ${TABLE}.product_tolocationtype = 'US East (Ohio)' THEN '-82.907123'
-    WHEN ${TABLE}.product_tolocation = 'US West (N. California)' OR ${TABLE}.product_tolocationtype = 'US West (N. California)' THEN '-120.895824'
-    WHEN ${TABLE}.product_tolocation = 'US West (Oregon)' OR ${TABLE}.product_tolocationtype = 'US West (Oregon)' THEN '-120.554201'
+    WHEN ${TABLE}.product_to_location = 'Asia Pacific (Mumbai)' OR ${TABLE}.product_to_location_type = 'Asia Pacific (Mumbai)' THEN '72.877656'
+    WHEN ${TABLE}.product_to_location = 'Asia Pacific (Seoul)' OR  ${TABLE}.product_to_location_type = 'Asia Pacific (Seoul)' THEN '126.977969'
+    WHEN ${TABLE}.product_to_location = 'Asia Pacific (Singapore)' OR ${TABLE}.product_to_location_type = 'Asia Pacific (Singapore)' THEN '103.819836'
+    WHEN ${TABLE}.product_to_location = 'Asia Pacific (Sydney)' OR ${TABLE}.product_to_location_type = 'Asia Pacific (Sydney)' THEN '151.209296'
+    WHEN ${TABLE}.product_to_location = 'Asia Pacific (Tokyo)' OR ${TABLE}.product_to_location_type = 'Asia Pacific (Tokyo)' THEN '139.691706'
+    WHEN ${TABLE}.product_to_location = 'Australia' OR ${TABLE}.product_to_location_type = 'Australia' THEN '133.775136'
+    WHEN ${TABLE}.product_to_location = 'Canada' OR ${TABLE}.product_to_location_type  = 'Canada' THEN  '-106.346771'
+    WHEN ${TABLE}.product_to_location = 'Canada (Central)' OR ${TABLE}.product_to_location_type = 'Canada (Central)' THEN '-106.346771'
+    WHEN ${TABLE}.product_to_location = 'EU (Frankfurt)' OR ${TABLE}.product_to_location_type = 'EU (Frankfurt)' THEN '8.682127'
+    WHEN ${TABLE}.product_to_location = 'EU (Ireland)' OR ${TABLE}.product_to_location_type = 'EU (Ireland)' THEN '-7.692054'
+    WHEN ${TABLE}.product_to_location = 'India' OR ${TABLE}.product_to_location_type = 'India' THEN '78.962880'
+    WHEN ${TABLE}.product_to_location = 'Japan' OR ${TABLE}.product_to_location_type = 'Japan' THEN '138.252924'
+    WHEN ${TABLE}.product_to_location = 'South America (Sao Paulo)' OR ${TABLE}.product_to_location_type = 'South America (Sao Paulo)' THEN '-46.633309'
+    WHEN ${TABLE}.product_to_location = 'South America' OR ${TABLE}.product_to_location_type = 'South America' THEN '-46.633309'
+    WHEN ${TABLE}.product_to_location = 'US East (N. Virginia)' OR ${TABLE}.product_to_location_type = 'US East (N. Virginia)' THEN '-78.656894'
+    WHEN ${TABLE}.product_to_location = 'US East (Ohio)' OR ${TABLE}.product_to_location_type = 'US East (Ohio)' THEN '-82.907123'
+    WHEN ${TABLE}.product_to_location = 'US West (N. California)' OR ${TABLE}.product_to_location_type = 'US West (N. California)' THEN '-120.895824'
+    WHEN ${TABLE}.product_to_location = 'US West (Oregon)' OR ${TABLE}.product_to_location_type = 'US West (Oregon)' THEN '-120.554201'
     ELSE 'Not labeled'
     END
         ;;
@@ -554,7 +554,7 @@ view: cost_and_usage {
   dimension: from_location_type {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_fromlocationtype ;;
+    sql: ${TABLE}.product_from_location_type ;;
   }
 
   dimension: product_group {
@@ -566,25 +566,25 @@ view: cost_and_usage {
   dimension: group_description {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_groupdescription ;;
+    sql: ${TABLE}.product_group_description ;;
   }
 
   dimension: product_includedservices {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_includedservices ;;
+    sql: ${TABLE}.product_included_services ;;
   }
 
   dimension: product_instancefamily {
     type: string
     hidden: yes
-    sql: ${TABLE}.product_instancefamily ;;
+    sql: ${TABLE}.product_instance_family ;;
   }
 
   dimension: instance_type {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_instancetype ;;
+    sql: ${TABLE}.product_instance_type ;;
   }
 
   dimension: product_io {
@@ -596,13 +596,13 @@ view: cost_and_usage {
   dimension: product_launchsupport {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_launchsupport ;;
+    sql: ${TABLE}.product_launch_support ;;
   }
 
   dimension: product_licensemodel {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_licensemodel ;;
+    sql: ${TABLE}.product_license_model ;;
   }
 
   dimension: location {
@@ -614,37 +614,37 @@ view: cost_and_usage {
   dimension: location_type {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_locationtype ;;
+    sql: ${TABLE}.product_location_type ;;
   }
 
   dimension: product_maximumstoragevolume {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_maximumstoragevolume ;;
+    sql: ${TABLE}.product_maximum_storage_volume ;;
   }
 
   dimension: product_maxiopsburstperformance {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_maxiopsburstperformance ;;
+    sql: ${TABLE}.product_max_iops_burst_performance ;;
   }
 
   dimension: product_maxiopsvolume {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_maxiopsvolume ;;
+    sql: ${TABLE}.product_max_iops_volume ;;
   }
 
   dimension: max_throughput_volume {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_maxthroughputvolume ;;
+    sql: ${TABLE}.product_max_throughput_volume ;;
   }
 
   dimension: product_maxvolumesize {
     type: string
     hidden: yes
-    sql: ${TABLE}.product_maxvolumesize ;;
+    sql: ${TABLE}.product_max_volume_size ;;
   }
 
   dimension: product_memory {
@@ -656,37 +656,37 @@ view: cost_and_usage {
   dimension: product_messagedeliveryfrequency {
     type: string
     hidden: yes
-    sql: ${TABLE}.product_messagedeliveryfrequency ;;
+    sql: ${TABLE}.product_message_delivery_frequency ;;
   }
 
   dimension: product_messagedeliveryorder {
     type: string
     hidden: yes
-    sql: ${TABLE}.product_messagedeliveryorder ;;
+    sql: ${TABLE}.product_message_delivery_order ;;
   }
 
   dimension: product_minimumstoragevolume {
     type: string
     hidden: yes
-    sql: ${TABLE}.product_minimumstoragevolume ;;
+    sql: ${TABLE}.product_minimum_storage_volume ;;
   }
 
   dimension: product_minvolumesize {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_minvolumesize ;;
+    sql: ${TABLE}.product_min_volume_size ;;
   }
 
   dimension: network_performance {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_networkperformance ;;
+    sql: ${TABLE}.product_network_performance ;;
   }
 
   dimension: operating_system {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_operatingsystem ;;
+    sql: ${TABLE}.product_operating_system ;;
   }
 
   dimension: product_operation {
@@ -699,44 +699,44 @@ view: cost_and_usage {
   dimension: product_operationssupport {
     type: string
     hidden: yes
-    sql: ${TABLE}.product_operationssupport ;;
+    sql: ${TABLE}.product_operations_support ;;
   }
 
   dimension: product_physicalprocessor {
     type: string
     hidden: yes
-    sql: ${TABLE}.product_physicalprocessor ;;
+    sql: ${TABLE}.product_physical_processor ;;
   }
 
   dimension: product_preinstalledsw {
     type: string
     hidden: yes
-    sql: ${TABLE}.product_preinstalledsw ;;
+    sql: ${TABLE}.product_pre_installed_sw ;;
   }
 
   dimension: product_proactiveguidance {
     type: string
     hidden: yes
-    sql: ${TABLE}.product_proactiveguidance ;;
+    sql: ${TABLE}.product_proactive_guidance ;;
   }
 
   dimension: product_processorarchitecture {
     type: string
     hidden: yes
-    sql: ${TABLE}.product_processorarchitecture ;;
+    sql: ${TABLE}.product_processor_architecture ;;
   }
 
   dimension: product_processorfeatures {
     type: string
     hidden: yes
-    sql: ${TABLE}.product_processorfeatures ;;
+    sql: ${TABLE}.product_processor_features ;;
   }
 
   dimension: productfamily {
     label: "Family"
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_productfamily ;;
+    sql: ${TABLE}.product_product_family ;;
   }
 
 
@@ -747,14 +747,14 @@ view: cost_and_usage {
     description: "Innaccurate labeling on part of AWS - use product code instead"
     hidden: yes
     view_label: "Product Info"
-    sql: ${TABLE}.product_productname ;;
+    sql: ${TABLE}.product_product_name ;;
   }
 
 #####
   dimension: product_programmaticcasemanagement {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_programmaticcasemanagement ;;
+    sql: ${TABLE}.product_programmatic_case_management ;;
   }
 
   dimension: product_provisioned {
@@ -766,37 +766,37 @@ view: cost_and_usage {
   dimension: product_queuetype {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_queuetype ;;
+    sql: ${TABLE}.product_queue_type ;;
   }
 
   dimension: product_requestdescription {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_requestdescription ;;
+    sql: ${TABLE}.product_request_description ;;
   }
 
   dimension: product_requesttype {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_requesttype ;;
+    sql: ${TABLE}.product_request_type ;;
   }
 
   dimension: product_routingtarget {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_routingtarget ;;
+    sql: ${TABLE}.product_routing_target ;;
   }
 
   dimension: product_routingtype {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_routingtype ;;
+    sql: ${TABLE}.product_routing_type ;;
   }
 
   dimension: product_servicecode {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_servicecode ;;
+    sql: ${TABLE}.product_service_code ;;
   }
 
   dimension: product_sku {
@@ -808,7 +808,7 @@ view: cost_and_usage {
   dimension: product_softwaretype {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_softwaretype ;;
+    sql: ${TABLE}.product_software_type ;;
   }
 
   dimension: product_storage {
@@ -820,19 +820,19 @@ view: cost_and_usage {
   dimension: product_storageclass {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_storageclass ;;
+    sql: ${TABLE}.product_storage_class ;;
   }
 
   dimension: product_storagemedia {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_storagemedia ;;
+    sql: ${TABLE}.product_storage_media ;;
   }
 
   dimension: product_technicalsupport {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_technicalsupport ;;
+    sql: ${TABLE}.product_technical_support ;;
   }
 
   dimension: tenancy {
@@ -844,20 +844,20 @@ view: cost_and_usage {
   dimension: product_thirdpartysoftwaresupport {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_thirdpartysoftwaresupport ;;
+    sql: ${TABLE}.product_third_party_software_support ;;
   }
 
   dimension: to_location {
     view_label: "Product Info"
 #     map_layer_name: countries
     type: string
-    sql: ${TABLE}.product_tolocation ;;
+    sql: ${TABLE}.product_to_location ;;
   }
 
   dimension: to_location_type {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_tolocationtype ;;
+    sql: ${TABLE}.product_to_location_type ;;
   }
 
   dimension: training {
@@ -869,13 +869,13 @@ view: cost_and_usage {
   dimension: transfer_type {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_transfertype ;;
+    sql: ${TABLE}.product_transfer_type ;;
   }
 
   dimension: usage_family {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_usagefamily ;;
+    sql: ${TABLE}.product_usage_family ;;
   }
 
   dimension: data_transfer {
@@ -899,7 +899,7 @@ view: cost_and_usage {
   dimension: usage_type {
     view_label: "Product Info"
     type: string
-    sql: ${TABLE}.product_usagetype ;;
+    sql: ${TABLE}.product_usage_type ;;
   }
 
   dimension: product_vcpu {
@@ -917,43 +917,43 @@ view: cost_and_usage {
   dimension: product_volumetype {
     type: string
     hidden: yes
-    sql: ${TABLE}.product_volumetype ;;
+    sql: ${TABLE}.product_volume_type ;;
   }
 
   dimension: product_whocanopencases {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_whocanopencases ;;
+    sql: ${TABLE}.product_who_can_open_cases ;;
   }
 
   dimension: pricing_leasecontractlength {
     hidden: yes
     type: string
-    sql: ${TABLE}.pricing_leasecontractlength ;;
+    sql: ${TABLE}.pricing_lease_contract_length ;;
   }
 
   dimension: pricing_offeringclass {
     hidden: yes
     type: string
-    sql: ${TABLE}.product_storageclass ;;
+    sql: ${TABLE}.product_storage_class ;;
   }
 
   dimension: pricing_purchaseoption {
     hidden: yes
     type: string
-    sql: ${TABLE}.pricing_purchaseoption ;;
+    sql: ${TABLE}.pricing_purchase_option ;;
   }
 
   dimension: pricing_publicondemandcost {
     hidden: yes
     type: string
-    sql: ${TABLE}.pricing_publicondemandcost ;;
+    sql: ${TABLE}.pricing_public_on_demand_cost ;;
   }
 
   dimension: pricing_publicondemandrate {
     hidden: yes
     type: string
-    sql: ${TABLE}.pricing_publicondemandrate ;;
+    sql: ${TABLE}.pricing_public_on_demand_rate ;;
   }
 
   dimension: pricing_term {
@@ -971,32 +971,32 @@ view: cost_and_usage {
   dimension: reservation_availabilityzone {
     hidden: yes
     type: string
-    sql: ${TABLE}.reservation_availabilityzone ;;
+    sql: ${TABLE}.reservation_availability_zone ;;
   }
 
   dimension: reservation_unitsperreservation {
     type: string
     hidden: yes
-    sql: ${TABLE}.reservation_normalizedunitsperreservation ;;
+    sql: ${TABLE}.reservation_normalized_units_per_reservation ;;
   }
 
   dimension: reservation_numberofreservations {
     type: number
     hidden: yes
-    sql: ${TABLE}.reservation_numberofreservations ;;
+    sql: ${TABLE}.reservation_number_of_reservations ;;
   }
 
   dimension: reservation_arn {
     view_label: "Reserved Units"
     description: "When an RI benefit discount is applied to a matching line item of usage, the ARN value in the reservation/ReservationARN column for the initial upfront fees and recurring monthly charges matches the ARN value in the discounted usage line items."
     type: string
-    sql: ${TABLE}.reservation_reservationarn ;;
+    sql: ${TABLE}.reservation_reservation_arn ;;
   }
 
   dimension: reservation_totalreservednormalizedunits {
     hidden: yes
     type: string
-    sql: ${TABLE}.reservation_totalreservednormalizedunits ;;
+    sql: ${TABLE}.reservation_total_reserved_normalized_units ;;
   }
 
   dimension: reservation_totalreservedunits {
@@ -1004,35 +1004,35 @@ view: cost_and_usage {
     description: "The total number of total number of hours across all reserved instances in the subscription."
     type: number
     hidden: yes
-    sql: ${TABLE}.reservation_totalreservedunits ;;
+    sql: ${TABLE}.reservation_total_reserved_units ;;
   }
 
 
 
   ### ENABLE FOR CUSTOM TAGS ###
 
-  dimension: user_name {
+  dimension: user_env {
     view_label: "Custom Resource Tagging"
     type: string
-    sql: ${TABLE}.resourcetags_username ;;
+    sql: ${TABLE}.resource_tags_user_env ;;
   }
 
-  dimension: user_cost_category {
+  dimension: user_iac {
     view_label: "Custom Resource Tagging"
     type: string
-    sql: ${TABLE}.resourcetags_usercostcategory ;;
+    sql: ${TABLE}.resource_tags_user_iac ;;
   }
 
-  dimension: customer_segment {
+  dimension: user_service {
     view_label: "Custom Resource Tagging"
     type: string
-    sql: CASE
-          WHEN ${user_cost_category} = '744.00000000' THEN 'SMB'
-          WHEN ${user_cost_category} = '' THEN 'Mid-Market'
-          WHEN ${user_cost_category} = 'internal' THEN 'Enterprise'
-          ELSE 'Enterprise'
-          END
-          ;;
+    sql: ${TABLE}.resource_tags_user_service ;;
+  }
+
+  dimension: user_squad {
+    view_label: "Custom Resource Tagging"
+    type: string
+    sql: ${TABLE}.resource_tags_user_squad ;;
   }
 
   ### END EMNABLE FOR CUSTOM TAGS ###
